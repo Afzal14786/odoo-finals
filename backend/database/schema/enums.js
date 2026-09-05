@@ -5,10 +5,10 @@ export const USER_ROLE = pgEnum("userRole", [
   "accountant",
 ]);
 
-export const CONTACTS_TYPES = pgEnum("contacts", [
-  "customer",
-  "vendor",
-  "both",
+export const CONTACT_TYPE = pgEnum("contact_type", [
+    "customer",
+    "vendor",
+    "both",
 ]);
 
 export const PRODUCT_TYPES = pgEnum("types", [

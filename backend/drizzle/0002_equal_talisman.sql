@@ -1,0 +1,1 @@
+ALTER TYPE "public"."contacts" RENAME TO "contact_type";

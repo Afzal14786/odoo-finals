@@ -15,6 +15,20 @@
       "when": 1788612534508,
       "tag": "0001_purple_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788615508032,
+      "tag": "0002_equal_talisman",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788615613407,
+      "tag": "0003_glorious_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }
