@@ -1,12 +1,10 @@
 export interface Contact {
   id: string;
   name: string;
-  type: 'Customer' | 'Vendor' | 'Both';
   email: string;
-  mobile: string;
-  city: string;
-  state: string;
-  pincode: string;
+  phone: string;
+  type: 'Customer' | 'Vendor' | 'Both';
+  company?: string;
 }
 
 export interface Product {
@@ -16,22 +14,64 @@ export interface Product {
   category: string;
   salesPrice: number;
   costPrice: number;
+  sku?: string;
+  quantityOnHand?: number;
 }
 
-export interface JournalEntryLine {
-  account: string;
-  partner: string;
+export interface Account {
+  id: string;
+  code: string;
+  name: string;
+  type: 'Asset' | 'Liability' | 'Equity' | 'Income' | 'Expense';
+  balance: number;
+}
+
+export interface JournalLine {
+  accountId: string;
+  accountName: string;
   debit: number;
   credit: number;
 }
 
+export interface JournalEntry {
+  id: string;
+  date: string;
+  reference: string;
+  lines: JournalLine[];
+}
 
 export interface Budget {
   id: string;
   name: string;
+  allocatedAmount: number;
+  spentAmount: number;
   period: string;
-  responsible: string;
-  analyticAccount: string;
-  plannedAmount: number;
-  practicalAmount: number;
+}
+
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface PurchaseOrder {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  date: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: 'Draft' | 'Confirmed' | 'Billed' | 'Paid';
+}
+
+export interface SalesOrder {
+  id: string;
+  customerId: string;
+  customerName: string;
+  date: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: 'Draft' | 'Sent' | 'Invoiced' | 'Paid';
 }
