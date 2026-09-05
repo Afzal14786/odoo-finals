@@ -10,3 +10,5 @@ export * from "./analytic_accounts.schema.js";
 export * from "./budgets.schema.js";
 export * from "./purchase_orders.schema.js";
 export * from "./purchase_order_items.schema.js";
+export * from "./vendor_bill_items.schema.js";
+export * from "./vendor_bills.schema.js";
