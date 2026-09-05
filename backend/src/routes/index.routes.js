@@ -15,6 +15,7 @@ import customerInvoiceRoute from "../modules/customer-invoice/customerInvoice.ro
 import customerPaymentRoute from "../modules/customer-payment/customerPayment.routes.js";
 import stockManagementRoute from "../modules/stock-management/stockManagement.routes.js";
 import stockReportsRoute from "../modules/stock-reports/stockReports.routes.js";
+import profitLossRoute from "../modules/profit-loss/profitLoss.routes.js";
 
 const route = Router();
 
@@ -35,5 +36,6 @@ route.use("/customer-invoices", customerInvoiceRoute);
 route.use("/customer-payments", customerPaymentRoute);
 route.use("/stock-movements", stockManagementRoute);
 route.use("/stock-reports", stockReportsRoute);
+route.use("/reports/profit-loss", profitLossRoute);
 
 export default route;
