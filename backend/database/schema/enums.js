@@ -16,3 +16,11 @@ export const PRODUCT_TYPES = pgEnum("types", [
     "service",
     "combo",
 ]);
+
+export const ACCOUNT_TYPE = pgEnum("account_type", [
+    "asset",
+    "liability",
+    "expense",
+    "income",
+    "capital",
+]);
