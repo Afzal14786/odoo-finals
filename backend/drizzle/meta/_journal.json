@@ -43,6 +43,13 @@
       "when": 1788621703977,
       "tag": "0005_overconfident_malice",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788622860986,
+      "tag": "0006_gigantic_hawkeye",
+      "breakpoints": true
     }
   ]
 }

@@ -3,3 +3,4 @@ export * from "./users.schema.js";
 export * from "./contacts.schema.js";
 export * from "./products.schema.js";
 export * from "./chart_of_accounts.schema.js";
+export * from "./journals.schema.js";
