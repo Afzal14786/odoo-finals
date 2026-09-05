@@ -92,6 +92,13 @@
       "when": 1788633345854,
       "tag": "0012_bouncy_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1788634417912,
+      "tag": "0013_flat_golden_guardian",
+      "breakpoints": true
     }
   ]
 }
