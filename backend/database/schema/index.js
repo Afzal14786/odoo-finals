@@ -8,3 +8,5 @@ export * from "./journal_entries.schema.js";
 export * from "./journal_items.schema.js";
 export * from "./analytic_accounts.schema.js";
 export * from "./budgets.schema.js";
+export * from "./purchase_orders.schema.js";
+export * from "./purchase_order_items.schema.js";

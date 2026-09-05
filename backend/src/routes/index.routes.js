@@ -7,6 +7,7 @@ import journalRoute from "../modules/journal/journal.routes.js";
 import journalEntryRoute from "../modules/journal-entry/journalEntry.routes.js";
 import analyticAccountRoute from "../modules/analytic-account/analyticAccount.routes.js";
 import budgetRoute from "../modules/budget/budget.routes.js";
+import purchaseOrderRoute from "../modules/purchase-order/purchaseOrder.routes.js";
 
 const route = Router();
 
@@ -19,5 +20,6 @@ route.use("/journals", journalRoute);
 route.use("/journal-entries", journalEntryRoute);
 route.use("/analytic-accounts", analyticAccountRoute);
 route.use("/budgets", budgetRoute);
+route.use("/purchase-orders", purchaseOrderRoute);
 
 export default route;
