@@ -10,7 +10,7 @@ import budgetRoute from "../modules/budget/budget.routes.js";
 import purchaseOrderRoute from "../modules/purchase-order/purchaseOrder.routes.js";
 import vendorBillRoute from "../modules/vendor-bill/vendorBill.routes.js";
 import purchasePaymentRoute from "../modules/purchase-payment/purchasePayment.routes.js";
-
+import salesOrder from "../modules/sales-order/salesOrder.routes.js";
 
 const route = Router();
 
@@ -26,5 +26,6 @@ route.use("/budgets", budgetRoute);
 route.use("/purchase-orders", purchaseOrderRoute);
 route.use("/purchase-payments", purchasePaymentRoute);
 route.use("/vendor-bills", vendorBillRoute);
+route.use("/sales-orders", salesOrder);
 
 export default route;

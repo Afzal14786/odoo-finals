@@ -13,3 +13,5 @@ export * from "./purchase_order_items.schema.js";
 export * from "./vendor_bill_items.schema.js";
 export * from "./vendor_bills.schema.js";
 export * from "./purchase_payments.schema.js";
+export * from "./sales_orders.schema.js";
+export * from "./sales_order_items.schema.js";
