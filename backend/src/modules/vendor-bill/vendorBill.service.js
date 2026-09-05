@@ -1,4 +1,4 @@
-import { eq, isNull, inArray } from "drizzle-orm";
+import { and, eq, isNull, inArray } from "drizzle-orm";
 
 import { database } from "../../../database/index.js";
 
@@ -8,6 +8,10 @@ import {
   contacts,
   products,
   purchaseOrders,
+  journals,
+  journalEntries,
+  journalItems,
+  chartOfAccounts,
 } from "../../../database/schema/index.js";
 
 export class VendorBillService {
@@ -163,9 +167,120 @@ export class VendorBillService {
         .values(itemValues)
         .returning();
 
+
+      const billTotal = createdItems.reduce(
+        (total, item) => total + item.total,
+        0,
+      );
+
+      const [purchaseJournal] = await tx
+        .select()
+        .from(journals)
+        .where(
+          and(
+            eq(journals.journalType, "purchase"),
+            isNull(journals.archivedAt),
+          ),
+        )
+        .limit(1);
+
+      if (!purchaseJournal) {
+        const error = new Error("Purchase journal is not configured");
+
+        error.statusCode = 500;
+        error.code = "PURCHASE_JOURNAL_NOT_FOUND";
+
+        throw error;
+      }
+
+      const [purchasesExpenseAccount] = await tx
+        .select()
+        .from(chartOfAccounts)
+        .where(
+          and(
+            eq(chartOfAccounts.accountName, "Purchases Expense"),
+            isNull(chartOfAccounts.archivedAt),
+          ),
+        )
+        .limit(1);
+
+      if (!purchasesExpenseAccount) {
+        const error = new Error("Purchases Expense account is not configured");
+
+        error.statusCode = 500;
+        error.code = "PURCHASES_EXPENSE_ACCOUNT_NOT_FOUND";
+
+        throw error;
+      }
+
+      const [accountsPayable] = await tx
+        .select()
+        .from(chartOfAccounts)
+        .where(
+          and(
+            eq(chartOfAccounts.accountName, "Accounts Payable"),
+            isNull(chartOfAccounts.archivedAt),
+          ),
+        )
+        .limit(1);
+
+      if (!accountsPayable) {
+        const error = new Error("Accounts Payable account is not configured");
+
+        error.statusCode = 500;
+        error.code = "ACCOUNTS_PAYABLE_ACCOUNT_NOT_FOUND";
+
+        throw error;
+      }
+
+      const [journalEntry] = await tx
+        .insert(journalEntries)
+        .values({
+          journalId: purchaseJournal.id,
+
+          entryDate: data.billDate,
+
+          reference: data.reference,
+        })
+        .returning();
+
+      const journalEntryItems = await tx
+        .insert(journalItems)
+        .values([
+          {
+            journalEntryId: journalEntry.id,
+
+            accountId: purchasesExpenseAccount.id,
+
+            debit: billTotal,
+
+            credit: 0,
+          },
+
+          {
+            journalEntryId: journalEntry.id,
+
+            accountId: accountsPayable.id,
+
+            debit: 0,
+
+            credit: billTotal,
+          },
+        ])
+        .returning();
+
       return {
         ...vendorBill,
+
         items: createdItems,
+
+        journalEntry: {
+          ...journalEntry,
+
+          items: journalEntryItems,
+        },
+
+        billTotal,
       };
     });
   }
@@ -317,3 +432,5 @@ export class VendorBillService {
     };
   }
 }
+
+export default VendorBillService;
