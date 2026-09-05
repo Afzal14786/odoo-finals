@@ -43,3 +43,10 @@ export const PAYMENT_METHOD = pgEnum("payment_method", [
     "cash",
     "bank",
 ]);
+
+export const STOCK_MOVEMENT_TYPE = pgEnum(
+  "stock_movement_type", [
+    "in",
+    "out",
+  ],
+);
