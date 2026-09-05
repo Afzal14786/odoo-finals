@@ -6,6 +6,7 @@ import chartOfAccountRoute from "../modules/chart-of-account/chartOfAccount.rout
 import journalRoute from "../modules/journal/journal.routes.js";
 import journalEntryRoute from "../modules/journal-entry/journalEntry.routes.js";
 import analyticAccountRoute from "../modules/analytic-account/analyticAccount.routes.js";
+import budgetRoute from "../modules/budget/budget.routes.js";
 
 const route = Router();
 
@@ -17,5 +18,6 @@ route.use("/coa", chartOfAccountRoute);  // coa stands for chart-of-account samj
 route.use("/journals", journalRoute);
 route.use("/journal-entries", journalEntryRoute);
 route.use("/analytic-accounts", analyticAccountRoute);
+route.use("/budgets", budgetRoute);
 
 export default route;

@@ -6,4 +6,5 @@ export * from "./chart_of_accounts.schema.js";
 export * from "./journals.schema.js";
 export * from "./journal_entries.schema.js";
 export * from "./journal_items.schema.js";
-export * from "./analytic_accounts.schema.js"
+export * from "./analytic_accounts.schema.js";
+export * from "./budgets.schema.js";

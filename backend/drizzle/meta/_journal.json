@@ -64,6 +64,13 @@
       "when": 1788628371430,
       "tag": "0008_neat_molten_man",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788629785219,
+      "tag": "0009_moaning_jack_murdock",
+      "breakpoints": true
     }
   ]
 }
