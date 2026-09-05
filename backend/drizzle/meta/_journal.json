@@ -36,6 +36,13 @@
       "when": 1788619905903,
       "tag": "0004_volatile_baron_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788621703977,
+      "tag": "0005_overconfident_malice",
+      "breakpoints": true
     }
   ]
 }
