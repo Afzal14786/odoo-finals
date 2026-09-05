@@ -17,3 +17,4 @@ export * from "./sales_orders.schema.js";
 export * from "./sales_order_items.schema.js";
 export * from "./customer_invoices.schema.js";
 export * from "./customer_invoice_items.schema.js";
+export * from "./customer_payments.schema.js";
