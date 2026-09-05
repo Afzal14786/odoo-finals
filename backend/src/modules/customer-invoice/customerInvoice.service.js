@@ -9,6 +9,10 @@ import {
   salesOrderItems,
   contacts,
   products,
+  journals,
+  journalEntries,
+  journalItems,
+  chartOfAccounts,
 } from "../../../database/schema/index.js";
 
 export class CustomerInvoiceService {
@@ -148,9 +152,117 @@ export class CustomerInvoiceService {
         )
         .returning();
 
+
+      const invoiceTotal = invoiceItems.reduce(
+        (total, item) => total + item.total,
+        0,
+      );
+
+      const [salesJournal] = await tx
+        .select()
+        .from(journals)
+        .where(
+          and(eq(journals.journalType, "sales"), isNull(journals.archivedAt)),
+        )
+        .limit(1);
+
+      if (!salesJournal) {
+        const error = new Error("Sales journal is not configured");
+
+        error.statusCode = 500;
+        error.code = "SALES_JOURNAL_NOT_FOUND";
+
+        throw error;
+      }
+
+      const [receivableAccount] = await tx
+        .select()
+        .from(chartOfAccounts)
+        .where(
+          and(
+            eq(chartOfAccounts.accountName, "Accounts Receivable"),
+            isNull(chartOfAccounts.archivedAt),
+          ),
+        )
+        .limit(1);
+
+      if (!receivableAccount) {
+        const error = new Error(
+          "Accounts Receivable account is not configured",
+        );
+
+        error.statusCode = 500;
+        error.code = "RECEIVABLE_ACCOUNT_NOT_FOUND";
+
+        throw error;
+      }
+
+      const [salesRevenueAccount] = await tx
+        .select()
+        .from(chartOfAccounts)
+        .where(
+          and(
+            eq(chartOfAccounts.accountName, "Sales Revenue"),
+            isNull(chartOfAccounts.archivedAt),
+          ),
+        )
+        .limit(1);
+
+      if (!salesRevenueAccount) {
+        const error = new Error("Sales Revenue account is not configured");
+
+        error.statusCode = 500;
+        error.code = "SALES_REVENUE_ACCOUNT_NOT_FOUND";
+
+        throw error;
+      }
+
+      const [journalEntry] = await tx
+        .insert(journalEntries)
+        .values({
+          journalId: salesJournal.id,
+          entryDate: data.invoiceDate,
+          reference: data.reference,
+        })
+        .returning();
+
+      const journalEntryItems = await tx
+        .insert(journalItems)
+        .values([
+          {
+            journalEntryId: journalEntry.id,
+
+            accountId: receivableAccount.id,
+
+            debit: invoiceTotal,
+
+            credit: 0,
+          },
+
+          {
+            journalEntryId: journalEntry.id,
+
+            accountId: salesRevenueAccount.id,
+
+            debit: 0,
+
+            credit: invoiceTotal,
+          },
+        ])
+        .returning();
+
       return {
         ...customerInvoice,
+
         items: invoiceItems,
+
+        journalEntry: {
+          ...journalEntry,
+
+          items: journalEntryItems,
+        },
+
+        invoiceTotal,
       };
     });
   }
@@ -187,6 +299,7 @@ export class CustomerInvoiceService {
 
     return {
       ...customerInvoice,
+
       items,
     };
   }
@@ -220,6 +333,7 @@ export class CustomerInvoiceService {
 
     return {
       ...updatedInvoice,
+
       items,
     };
   }
@@ -253,3 +367,4 @@ export class CustomerInvoiceService {
 }
 
 export default CustomerInvoiceService;
+
