@@ -1,24 +1,30 @@
 {
-  "name": "@urban-furniture/backend",
-  "private": true,
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "pnpm --parallel --filter './apps/*' dev",
-    "build": "pnpm --recursive build",
-    "test": "pnpm --recursive test",
-    "lint": "pnpm --recursive lint",
-
-    "dev:gateway": "pnpm --filter @urban-furniture/api-gateway dev",
-    "dev:core": "pnpm --filter @urban-furniture/core-service dev",
-    "dev:accounting": "pnpm --filter @urban-furniture/accounting-service dev",
-    "dev:reporting": "pnpm --filter @urban-furniture/reporting-service dev",
-
-    "db:generate": "pnpm --filter @urban-furniture/database db:generate",
-    "db:migrate": "pnpm --filter @urban-furniture/database db:migrate",
-    "db:push": "pnpm --filter @urban-furniture/database db:push",
-    "db:seed": "pnpm --filter @urban-furniture/database db:seed",
-
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f"
+    "dev": "nodemon ./src/server.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "argon2": "^0.45.1",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.0",
+    "postgres": "^3.4.9",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.10",
+    "nodemon": "^3.1.14"
   }
 }
