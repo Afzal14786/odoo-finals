@@ -17,6 +17,7 @@ import stockManagementRoute from "../modules/stock-management/stockManagement.ro
 import stockReportsRoute from "../modules/stock-reports/stockReports.routes.js";
 import profitLossRoute from "../modules/profit-loss/profitLoss.routes.js";
 import balanceSheetRoute from "../modules/balance-sheet/balanceSheet.route.js";
+import budgetReportRoute from "../modules/budget/budgetReport.route.js";
 
 const route = Router();
 
@@ -39,5 +40,5 @@ route.use("/stock-movements", stockManagementRoute);
 route.use("/stock-reports", stockReportsRoute);
 route.use("/reports/profit-loss", profitLossRoute);
 route.use("/reports/balance-sheet", balanceSheetRoute);
-
+route.use("/reports/budget", budgetReportRoute);
 export default route;
