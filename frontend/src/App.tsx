@@ -9,6 +9,7 @@ import { PurchaseWorkflow } from './components/purchases/PurchaseWorkflow';
 import { SalesInvoiceWorkflow } from './components/sales/SalesInvoiceWorkflow';
 import { FinancialReports } from './components/reports/FinancialReports';
 
+
 export function App() {
  const [isAuthenticated, setIsAuthenticated] = useState(false);
 const [activeTab, setActiveTab] = useState<
