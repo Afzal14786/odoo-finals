@@ -139,11 +139,9 @@ export class VendorBillService {
         .insert(vendorBills)
         .values({
           vendorId: data.vendorId,
-
           purchaseOrderId: data.purchaseOrderId,
-
           billDate: data.billDate,
-
+          dueDate: data.dueDate,
           reference: data.reference,
         })
         .returning();
@@ -233,10 +231,22 @@ export class VendorBillService {
   }
 
   static async updateVendorBill(id, data) {
-    await this.getVendorBillById(id);
+    const existingVendorBill = await this.getVendorBillById(id);
 
     if (data.vendorId !== undefined) {
       await this.validateVendor(data.vendorId);
+    }
+
+    const billDate = data.billDate ?? existingVendorBill.billDate;
+    const dueDate = data.dueDate ?? existingVendorBill.dueDate;
+
+    if (billDate > dueDate) {
+      const error = new Error("Due date cannot be before bill date");
+
+      error.statusCode = 400;
+      error.code = "INVALID_VENDOR_BILL_DATE_RANGE";
+
+      throw error;
     }
 
     const updateData = {};
@@ -247,6 +257,10 @@ export class VendorBillService {
 
     if (data.billDate !== undefined) {
       updateData.billDate = data.billDate;
+    }
+
+    if (data.dueDate !== undefined) {
+      updateData.dueDate = data.dueDate;
     }
 
     if (data.reference !== undefined) {

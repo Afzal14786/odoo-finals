@@ -20,6 +20,8 @@ export const vendorBills = pgTable("vendor_bills", {
 
   billDate: date("bill_date").notNull(),
 
+  dueDate: date("due_date").notNull(),
+
   reference: varchar("reference", {
     length: 100,
   }).notNull(),
