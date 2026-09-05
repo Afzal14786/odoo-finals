@@ -5,15 +5,17 @@ import productRoute  from "../modules/product/product.routes.js";
 import chartOfAccountRoute from "../modules/chart-of-account/chartOfAccount.routes.js"
 import journalRoute from "../modules/journal/journal.routes.js";
 import journalEntryRoute from "../modules/journal-entry/journalEntry.routes.js";
+import analyticAccountRoute from "../modules/analytic-account/analyticAccount.routes.js";
 
 const route = Router();
 
-
+analyticAccountRoute
 route.use("/auth", authRoute);
 route.use("/contacts", contactRoute);
 route.use("/products", productRoute);
 route.use("/coa", chartOfAccountRoute);  // coa stands for chart-of-account samjhe kia
 route.use("/journals", journalRoute);
 route.use("/journal-entries", journalEntryRoute);
+route.use("/analytic-accounts", analyticAccountRoute);
 
 export default route;

@@ -57,6 +57,13 @@
       "when": 1788624924386,
       "tag": "0007_youthful_blackheart",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788628371430,
+      "tag": "0008_neat_molten_man",
+      "breakpoints": true
     }
   ]
 }

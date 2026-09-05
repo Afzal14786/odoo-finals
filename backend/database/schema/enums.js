@@ -31,3 +31,10 @@ export const JOURNAL_TYPE = pgEnum("journal_type", [
     "bank",
     "cash",
 ]);
+
+export const ANALYTIC_ACCOUNT_TYPE = pgEnum(
+    "analytic_account_type",[
+        "income",
+        "expense",
+    ],
+);
