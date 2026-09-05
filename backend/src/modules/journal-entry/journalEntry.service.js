@@ -12,10 +12,6 @@ import {
 export class JournalEntryService {
   static async createJournalEntry(data) {
     return await database.transaction(async (tx) => {
-      /*
-       * 1. Verify journal exists
-       *    and is not archived.
-       */
       const [journal] = await tx
         .select()
         .from(journals)
@@ -31,10 +27,41 @@ export class JournalEntryService {
         throw error;
       }
 
-      /*
-       * 2. Verify all accounts exist
-       *    and are not archived.
-       */
+      for (const item of data.items) {
+        if (item.debit < 0 || item.credit < 0) {
+          const error = new Error(
+            "Debit and credit amounts cannot be negative",
+          );
+
+          error.statusCode = 400;
+          error.code = "NEGATIVE_JOURNAL_AMOUNT";
+
+          throw error;
+        }
+
+        if (item.debit > 0 && item.credit > 0) {
+          const error = new Error(
+            "A journal item cannot contain both debit and credit",
+          );
+
+          error.statusCode = 400;
+          error.code = "INVALID_JOURNAL_ITEM";
+
+          throw error;
+        }
+
+        if (item.debit === 0 && item.credit === 0) {
+          const error = new Error(
+            "A journal item must contain either a debit or credit amount",
+          );
+
+          error.statusCode = 400;
+          error.code = "EMPTY_JOURNAL_ITEM";
+
+          throw error;
+        }
+      }
+
       const accountIds = [...new Set(data.items.map((item) => item.accountId))];
 
       const accounts = await tx
@@ -59,9 +86,27 @@ export class JournalEntryService {
         throw error;
       }
 
-      /*
-       * 3. Create journal entry header.
-       */
+      const totalDebit = data.items.reduce(
+        (total, item) => total + item.debit,
+        0,
+      );
+
+      const totalCredit = data.items.reduce(
+        (total, item) => total + item.credit,
+        0,
+      );
+
+      if (totalDebit !== totalCredit) {
+        const error = new Error(
+          "Journal entry must be balanced: total debit must equal total credit",
+        );
+
+        error.statusCode = 400;
+        error.code = "UNBALANCED_JOURNAL_ENTRY";
+
+        throw error;
+      }
+
       const [journalEntry] = await tx
         .insert(journalEntries)
         .values({
@@ -71,27 +116,18 @@ export class JournalEntryService {
         })
         .returning();
 
-      /*
-       * 4. Create journal items.
-       */
       const items = await tx
         .insert(journalItems)
         .values(
           data.items.map((item) => ({
             journalEntryId: journalEntry.id,
-
             accountId: item.accountId,
-
             debit: item.debit,
-
             credit: item.credit,
           })),
         )
         .returning();
 
-      /*
-       * 5. Return complete journal entry.
-       */
       return {
         ...journalEntry,
         items,

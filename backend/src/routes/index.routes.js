@@ -9,6 +9,8 @@ import analyticAccountRoute from "../modules/analytic-account/analyticAccount.ro
 import budgetRoute from "../modules/budget/budget.routes.js";
 import purchaseOrderRoute from "../modules/purchase-order/purchaseOrder.routes.js";
 import vendorBillRoute from "../modules/vendor-bill/vendorBill.routes.js";
+import purchasePaymentRoute from "../modules/purchase-payment/purchasePayment.routes.js";
+
 
 const route = Router();
 
@@ -22,6 +24,7 @@ route.use("/journal-entries", journalEntryRoute);
 route.use("/analytic-accounts", analyticAccountRoute);
 route.use("/budgets", budgetRoute);
 route.use("/purchase-orders", purchaseOrderRoute);
+route.use("/purchase-payments", purchasePaymentRoute);
 route.use("/vendor-bills", vendorBillRoute);
 
 export default route;

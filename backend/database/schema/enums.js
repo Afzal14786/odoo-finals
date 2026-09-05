@@ -38,3 +38,8 @@ export const ANALYTIC_ACCOUNT_TYPE = pgEnum(
         "expense",
     ],
 );
+
+export const PAYMENT_METHOD = pgEnum("payment_method", [
+    "cash",
+    "bank",
+]);
