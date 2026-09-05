@@ -5,6 +5,12 @@ export interface Contact {
   phone: string;
   type: 'Customer' | 'Vendor' | 'Both';
   company?: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  image?: string;
 }
 
 export interface Product {
@@ -16,6 +22,7 @@ export interface Product {
   costPrice: number;
   sku?: string;
   quantityOnHand?: number;
+  image?: string;
 }
 
 export interface Account {
@@ -40,12 +47,26 @@ export interface JournalEntry {
   lines: JournalLine[];
 }
 
+export interface BudgetLine {
+  id: string;
+  analytic: string;
+  type: 'Income' | 'Expense';
+  committedAmount: number;
+  achievedAmount: number;
+  achievedPercentage: number;
+  amountToAchieve: number;
+}
+
 export interface Budget {
   id: string;
-  name: string;
-  allocatedAmount: number;
-  spentAmount: number;
-  period: string;
+  budgetName: string;
+  startDate: string;
+  endDate: string;
+  responsible?: string;
+  status: 'Draft' | 'Confirmed' | 'Revised' | 'Cancelled';
+  revisionOfId?: string;
+  revisionOfName?: string;
+  lines: BudgetLine[];
 }
 
 export interface OrderItem {
