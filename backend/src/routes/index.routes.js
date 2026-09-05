@@ -12,6 +12,7 @@ import vendorBillRoute from "../modules/vendor-bill/vendorBill.routes.js";
 import purchasePaymentRoute from "../modules/purchase-payment/purchasePayment.routes.js";
 import salesOrder from "../modules/sales-order/salesOrder.routes.js";
 import customerInvoiceRoute from "../modules/customer-invoice/customerInvoice.routes.js";
+import customerPaymentRoute from "../modules/customer-payment/customerPayment.routes.js";
 
 const route = Router();
 
@@ -29,5 +30,6 @@ route.use("/purchase-payments", purchasePaymentRoute);
 route.use("/vendor-bills", vendorBillRoute);
 route.use("/sales-orders", salesOrder);
 route.use("/customer-invoices", customerInvoiceRoute);
+route.use("/customer-payments", customerPaymentRoute);
 
 export default route;
