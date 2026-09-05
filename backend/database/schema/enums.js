@@ -12,7 +12,7 @@ export const CONTACT_TYPE = pgEnum("contact_type", [
 ]);
 
 export const PRODUCT_TYPES = pgEnum("types", [
-  "goods",
-  "services",
-  "combo",
+    "goods",
+    "service",
+    "combo",
 ]);
