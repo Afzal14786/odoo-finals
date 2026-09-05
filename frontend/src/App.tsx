@@ -9,12 +9,46 @@ import { PurchaseWorkflow } from './components/purchases/PurchaseWorkflow';
 import { SalesInvoiceWorkflow } from './components/sales/SalesInvoiceWorkflow';
 import { FinancialReports } from './components/reports/FinancialReports';
 
+type TabType =
+  | 'CONTACTS' 
+  | 'PRODUCTS'
+  | 'COA'
+  | 'JOURNAL_ENTRY'
+  | 'BUDGETS'
+  | 'PURCHASES'
+  | 'SALES'
+  | 'REPORTS';
 
 export function App() {
- const [isAuthenticated, setIsAuthenticated] = useState(false);
-const [activeTab, setActiveTab] = useState<
-  'CONTACTS' | 'PRODUCTS' | 'COA' | 'JOURNAL_ENTRY' | 'BUDGETS' | 'PURCHASES' | 'SALES' | 'REPORTS'
->('CONTACTS');
+  // 1. Initialize authentication state from localStorage
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('erp_is_authenticated') === 'true';
+  });
+
+  // 2. Initialize active tab from localStorage (defaults to 'CONTACTS')
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const savedTab = localStorage.getItem('erp_active_tab') as TabType;
+    return savedTab || 'CONTACTS';
+  });
+
+  // Login handler
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('erp_is_authenticated', 'true');
+  };
+
+  // Logout handler
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('erp_is_authenticated');
+    localStorage.removeItem('erp_active_tab');
+  };
+
+  // Tab change handler
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    localStorage.setItem('erp_active_tab', tab);
+  };
 
   if (!isAuthenticated) {
     return (
@@ -22,7 +56,7 @@ const [activeTab, setActiveTab] = useState<
         <div className="p-3 bg-gray-900 text-white flex justify-between items-center text-xs px-6">
           <span className="font-bold">ERP Core Portal</span>
           <button
-            onClick={() => setIsAuthenticated(true)}
+            onClick={handleLogin}
             className="px-3 py-1.5 bg-blue-600 rounded-lg font-semibold hover:bg-blue-500 transition-colors"
           >
             Bypass Login (Demo Mode)
@@ -41,7 +75,7 @@ const [activeTab, setActiveTab] = useState<
           <h1 className="text-lg font-extrabold tracking-wide text-blue-400">ERP SYSTEM</h1>
           <nav className="flex gap-1 text-xs font-semibold">
             <button
-              onClick={() => setActiveTab('CONTACTS')}
+              onClick={() => handleTabChange('CONTACTS')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'CONTACTS' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
@@ -49,7 +83,7 @@ const [activeTab, setActiveTab] = useState<
               Contacts
             </button>
             <button
-              onClick={() => setActiveTab('PRODUCTS')}
+              onClick={() => handleTabChange('PRODUCTS')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'PRODUCTS' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
@@ -57,7 +91,7 @@ const [activeTab, setActiveTab] = useState<
               Products
             </button>
             <button
-              onClick={() => setActiveTab('COA')}
+              onClick={() => handleTabChange('COA')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'COA' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
@@ -65,7 +99,7 @@ const [activeTab, setActiveTab] = useState<
               CoA & Journals
             </button>
             <button
-              onClick={() => setActiveTab('JOURNAL_ENTRY')}
+              onClick={() => handleTabChange('JOURNAL_ENTRY')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'JOURNAL_ENTRY' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
@@ -73,7 +107,7 @@ const [activeTab, setActiveTab] = useState<
               + Entry Form
             </button>
             <button
-              onClick={() => setActiveTab('BUDGETS')}
+              onClick={() => handleTabChange('BUDGETS')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'BUDGETS' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
@@ -81,7 +115,7 @@ const [activeTab, setActiveTab] = useState<
               Budgets
             </button>
             <button
-              onClick={() => setActiveTab('PURCHASES')}
+              onClick={() => handleTabChange('PURCHASES')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'PURCHASES' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
@@ -89,7 +123,7 @@ const [activeTab, setActiveTab] = useState<
               Purchases
             </button>
             <button
-              onClick={() => setActiveTab('SALES')}
+              onClick={() => handleTabChange('SALES')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'SALES' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
@@ -97,7 +131,7 @@ const [activeTab, setActiveTab] = useState<
               Sales
             </button>
             <button
-              onClick={() => setActiveTab('REPORTS')}
+              onClick={() => handleTabChange('REPORTS')}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 activeTab === 'REPORTS' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
@@ -108,7 +142,7 @@ const [activeTab, setActiveTab] = useState<
         </div>
 
         <button
-          onClick={() => setIsAuthenticated(false)}
+          onClick={handleLogout}
           className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors"
         >
           Logout

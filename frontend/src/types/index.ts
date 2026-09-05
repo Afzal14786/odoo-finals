@@ -33,18 +33,26 @@ export interface Account {
   balance: number;
 }
 
-export interface JournalLine {
-  accountId: string;
-  accountName: string;
+// src/types/index.ts
+
+export interface JournalEntryLine {
+  id?: string;
+  account: string;       // or accountId: string
+  partner?: string;      // optional partner/contact name
   debit: number;
   credit: number;
+  description?: string;
 }
 
 export interface JournalEntry {
   id: string;
   date: string;
   reference: string;
-  lines: JournalLine[];
+  journalId: string;
+  lines: JournalEntryLine[];
+  status: 'DRAFT' | 'POSTED';
+  totalDebit: number;
+  totalCredit: number;
 }
 
 export interface BudgetLine {
