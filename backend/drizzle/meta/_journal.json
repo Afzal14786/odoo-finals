@@ -127,6 +127,13 @@
       "when": 1788639516610,
       "tag": "0017_special_echo",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1788653631405,
+      "tag": "0018_empty_lifeguard",
+      "breakpoints": true
     }
   ]
 }

@@ -19,3 +19,4 @@ export * from "./customer_invoices.schema.js";
 export * from "./customer_invoice_items.schema.js";
 export * from "./customer_payments.schema.js";
 export * from "./stock_movements.schema.js";
+export * from "./authSessions.schema.js";
