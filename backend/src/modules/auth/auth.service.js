@@ -1,6 +1,5 @@
 import argon2 from "argon2";
-
-import { eq, and, or, isNull } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 
 import { database as db } from "../../../database/index.js";
 
@@ -26,13 +25,23 @@ const createError = (message, statusCode, code) => {
   return error;
 };
 
+const REFRESH_TOKEN_DAYS = 7;
+
+const getRefreshExpiry = () => {
+  return new Date(Date.now() + REFRESH_TOKEN_DAYS * 24 * 60 * 60 * 1000);
+};
+
+const getSafeUser = (user) => {
+  const { passwordHash, ...safeUser } = user;
+  return safeUser;
+};
+
 export class AuthService {
   static async register({ name, email, mobile, address, password }) {
     const normalizedEmail = email.trim().toLowerCase();
-
     const normalizedMobile = mobile.trim();
 
-    const existingUser = await db
+    const [existingUser] = await db
       .select({
         id: users.id,
         email: users.email,
@@ -47,10 +56,8 @@ export class AuthService {
       )
       .limit(1);
 
-    if (existingUser.length > 0) {
-      const user = existingUser[0];
-
-      if (user.email === normalizedEmail) {
+    if (existingUser) {
+      if (existingUser.email === normalizedEmail) {
         throw createError(
           "Email already registered",
           409,
@@ -58,32 +65,16 @@ export class AuthService {
         );
       }
 
-      if (user.mobile === normalizedMobile) {
-        throw createError(
-          "Mobile number already registered",
-          409,
-          "MOBILE_ALREADY_EXISTS",
-        );
-      }
+      throw createError(
+        "Mobile number already registered",
+        409,
+        "MOBILE_ALREADY_EXISTS",
+      );
     }
 
-    const passwordHash = await argon2.hash(password, {
-      type: argon2.argon2id,
-    });
-
-    /*
-     * The first account becomes ADMIN.
-     * Every subsequent public registration
-     * becomes STAFF.
-     */
-    const userCount = await db
-      .select({
-        id: users.id,
-      })
-      .from(users)
-      .limit(1);
-
-    const role = userCount.length === 0 ? USER_ROLES.ADMIN : USER_ROLES.STAFF;
+    const passwordHash = await argon2.hash(password);
+    const [userCount] = await db.select({ id: users.id }).from(users).limit(1);
+    const role = userCount ? USER_ROLES.STAFF : USER_ROLES.ADMIN;
 
     const [user] = await db
       .insert(users)
@@ -115,17 +106,7 @@ export class AuthService {
     const normalizedEmail = email.trim().toLowerCase();
 
     const [user] = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        mobile: users.mobile,
-        address: users.address,
-        profileUrl: users.profileUrl,
-        passwordHash: users.passwordHash,
-        role: users.role,
-        status: users.status,
-      })
+      .select()
       .from(users)
       .where(eq(users.email, normalizedEmail))
       .limit(1);
@@ -142,9 +123,9 @@ export class AuthService {
       throw createError("Your account is inactive", 403, "ACCOUNT_INACTIVE");
     }
 
-    const isPasswordValid = await argon2.verify(user.passwordHash, password);
+    const validPassword = await argon2.verify(user.passwordHash, password);
 
-    if (!isPasswordValid) {
+    if (!validPassword) {
       throw createError(
         "Invalid email or password",
         401,
@@ -159,28 +140,22 @@ export class AuthService {
 
     const refreshToken = generateRefreshToken();
 
-    const refreshTokenHash = hashRefreshToken(refreshToken);
-
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
     await db.insert(authSessions).values({
       userId: user.id,
-      tokenHash: refreshTokenHash,
-      expiresAt,
+      tokenHash: hashRefreshToken(refreshToken),
+      expiresAt: getRefreshExpiry(),
       userAgent,
       ipAddress,
     });
 
-    const { passwordHash, ...safeUser } = user;
-
     return {
-      user: safeUser,
+      user: getSafeUser(user),
       accessToken,
       refreshToken,
     };
   }
 
-  static async refresh({ refreshToken, userAgent, ipAddress }) {
+  static async refresh(refreshToken) {
     if (!refreshToken) {
       throw createError(
         "Refresh token is required",
@@ -192,12 +167,7 @@ export class AuthService {
     const tokenHash = hashRefreshToken(refreshToken);
 
     const [session] = await db
-      .select({
-        id: authSessions.id,
-        userId: authSessions.userId,
-        expiresAt: authSessions.expiresAt,
-        revokedAt: authSessions.revokedAt,
-      })
+      .select()
       .from(authSessions)
       .where(eq(authSessions.tokenHash, tokenHash))
       .limit(1);
@@ -214,7 +184,7 @@ export class AuthService {
       );
     }
 
-    if (new Date(session.expiresAt) <= new Date()) {
+    if (session.expiresAt <= new Date()) {
       throw createError(
         "Refresh token has expired",
         401,
@@ -223,36 +193,20 @@ export class AuthService {
     }
 
     const [user] = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        mobile: users.mobile,
-        address: users.address,
-        profileUrl: users.profileUrl,
-        role: users.role,
-        status: users.status,
-      })
+      .select()
       .from(users)
       .where(eq(users.id, session.userId))
       .limit(1);
 
     if (!user) {
-      throw createError("User account not found", 401, "USER_NOT_FOUND");
+      throw createError("User not found", 404, "USER_NOT_FOUND");
     }
 
     if (user.status !== USER_STATUS.ACTIVE) {
       throw createError("Your account is inactive", 403, "ACCOUNT_INACTIVE");
     }
 
-    /*
-     * Refresh-token rotation.
-     */
     const newRefreshToken = generateRefreshToken();
-
-    const newRefreshTokenHash = hashRefreshToken(newRefreshToken);
-
-    const newExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await db.transaction(async (tx) => {
       await tx
@@ -264,10 +218,8 @@ export class AuthService {
 
       await tx.insert(authSessions).values({
         userId: user.id,
-        tokenHash: newRefreshTokenHash,
-        expiresAt: newExpiresAt,
-        userAgent,
-        ipAddress,
+        tokenHash: hashRefreshToken(newRefreshToken),
+        expiresAt: getRefreshExpiry(),
       });
     });
 
@@ -277,7 +229,7 @@ export class AuthService {
     });
 
     return {
-      user,
+      user: getSafeUser(user),
       accessToken,
       refreshToken: newRefreshToken,
     };
@@ -288,35 +240,17 @@ export class AuthService {
       return;
     }
 
-    const tokenHash = hashRefreshToken(refreshToken);
-
     await db
       .update(authSessions)
       .set({
         revokedAt: new Date(),
       })
-      .where(
-        and(
-          eq(authSessions.tokenHash, tokenHash),
-          isNull(authSessions.revokedAt),
-        ),
-      );
+      .where(eq(authSessions.tokenHash, hashRefreshToken(refreshToken)));
   }
 
   static async getCurrentUser(userId) {
     const [user] = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        mobile: users.mobile,
-        address: users.address,
-        profileUrl: users.profileUrl,
-        role: users.role,
-        status: users.status,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
-      })
+      .select()
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);
@@ -329,6 +263,6 @@ export class AuthService {
       throw createError("Your account is inactive", 403, "ACCOUNT_INACTIVE");
     }
 
-    return user;
+    return getSafeUser(user);
   }
 }

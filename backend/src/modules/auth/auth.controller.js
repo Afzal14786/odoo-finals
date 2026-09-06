@@ -1,13 +1,10 @@
 import { registerSchema, loginSchema } from "./auth.validation.js";
-
 import { AuthService } from "./auth.service.js";
-
 import { AUTH_CONFIG } from "./auth.config.js";
 
-const setRefreshCookie = (res, refreshToken) => {
-  res.cookie(AUTH_CONFIG.refreshCookieName, refreshToken, {
+const setRefreshCookie = (res, token) => {
+  res.cookie(AUTH_CONFIG.refreshCookieName, token, {
     ...AUTH_CONFIG.cookie,
-
     maxAge: AUTH_CONFIG.refreshTokenDays * 24 * 60 * 60 * 1000,
   });
 };
@@ -15,16 +12,14 @@ const setRefreshCookie = (res, refreshToken) => {
 export class AuthController {
   static async register(req, res, next) {
     try {
-      const validatedData = registerSchema.parse(req.body);
+      const data = registerSchema.parse(req.body);
 
-      const user = await AuthService.register(validatedData);
+      const user = await AuthService.register(data);
 
       return res.status(201).json({
         success: true,
         message: "User registered successfully",
-        data: {
-          user,
-        },
+        data: { user },
       });
     } catch (error) {
       next(error);
@@ -33,13 +28,11 @@ export class AuthController {
 
   static async login(req, res, next) {
     try {
-      const validatedData = loginSchema.parse(req.body);
+      const data = loginSchema.parse(req.body);
 
       const result = await AuthService.login({
-        ...validatedData,
-
+        ...data,
         userAgent: req.get("user-agent"),
-
         ipAddress: req.ip,
       });
 
@@ -50,7 +43,6 @@ export class AuthController {
         message: "Login successful",
         data: {
           user: result.user,
-
           accessToken: result.accessToken,
         },
       });
@@ -61,15 +53,9 @@ export class AuthController {
 
   static async refresh(req, res, next) {
     try {
-      const refreshToken = req.cookies[AUTH_CONFIG.refreshCookieName];
+      const refreshToken = req.cookies?.[AUTH_CONFIG.refreshCookieName];
 
-      const result = await AuthService.refresh({
-        refreshToken,
-
-        userAgent: req.get("user-agent"),
-
-        ipAddress: req.ip,
-      });
+      const result = await AuthService.refresh(refreshToken);
 
       setRefreshCookie(res, result.refreshToken);
 
@@ -77,9 +63,8 @@ export class AuthController {
         success: true,
         message: "Token refreshed successfully",
         data: {
-          user: result.user,
-
           accessToken: result.accessToken,
+          user: result.user,
         },
       });
     } catch (error) {
@@ -89,7 +74,7 @@ export class AuthController {
 
   static async logout(req, res, next) {
     try {
-      const refreshToken = req.cookies[AUTH_CONFIG.refreshCookieName];
+      const refreshToken = req.cookies?.[AUTH_CONFIG.refreshCookieName];
 
       await AuthService.logout(refreshToken);
 
@@ -110,9 +95,7 @@ export class AuthController {
 
       return res.status(200).json({
         success: true,
-        data: {
-          user,
-        },
+        data: { user },
       });
     } catch (error) {
       next(error);
